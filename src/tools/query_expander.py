@@ -2,6 +2,7 @@ from typing import List, Optional
 from openai import OpenAI
 import logging
 from pydantic import BaseModel
+from prompt_v1 import QUERY_EXPANSION_PROMPT
 from ..config import config
 
 logger = logging.getLogger(__name__)
@@ -12,46 +13,6 @@ class ExpandedQueries(BaseModel):
 
     queries: List[str]
     search_strategy: str
-
-
-QUERY_EXPANSION_PROMPT = """
-Ты эксперт по информационному поиску в базе документов ИТМО. 
-Твоя задача - переформулировать запрос пользователя для поиска релевантной информации.
-
-Проанализируй запрос и создай 2-3 поисковых запроса, которые:
-1. Охватывают разные аспекты вопроса
-2. Используют синонимы и связанные термины
-3. Учитывают возможные формулировки в документах
-
-Правила:
-- Если в вопросе есть варианты ответов, включи их ключевые термины
-- Используй ключевые слова, где уместно
-- Каждый запрос должен быть на русском языке (за исключением английских названий)
-- Запросы должны быть краткими и точными
-
-Верни ответ в формате JSON:
-{
-    "queries": ["запрос1", "запрос2", "запрос3"],
-    "search_strategy": "краткое описание стратегии поиска"
-}
-
-Пример запроса с вариантами ответов:
-"В каком рейтинге (по состоянию на 2021 год) ИТМО впервые вошёл в топ-400 мировых университетов?
-1. ARWU (Shanghai Ranking)
-2. Times Higher Education (THE)
-3. QS World University Rankings
-4. U.S. News & World Report"
-
-Пример ответа:
-{
-    "queries": [
-        "ИТМО топ-400 мировой рейтинг 2021",
-        "ИТМО ARWU Shanghai Ranking Times Higher Education QS",
-        "университет ИТМО рейтинг университетов 2021"
-    ],
-    "search_strategy": "Поиск упоминаний о достижении ИТМО топ-400 в 2021 году и проверка всех основных рейтингов"
-}
-"""
 
 
 class QueryExpander:
