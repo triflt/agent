@@ -1,77 +1,86 @@
 import time
 from typing import List
-
+import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import HttpUrl
-from schemas.request import PredictionRequest, PredictionResponse
+import logging
+
+from src.schemas.request import PredictionRequest, PredictionResponse
+from src.models.openai_bot import OpenAIBot
 from utils.logger import setup_logger
 
-# Initialize
-app = FastAPI()
-logger = None
+def configure_logging():
+    """Configure logging for the application"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),  # Console handler
+            logging.FileHandler('logs/app.log')  # File handler
+        ]
+    )
+    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 
+# Initialize logging
+configure_logging()
+logger = logging.getLogger(__name__)
+
+# Print startup banner
+logger.info("=" * 50)
+logger.info("🚀 Starting ITMO Assistant Application")
+logger.info("=" * 50)
+
+# Initialize FastAPI
+app = FastAPI(title="ITMO Assistant API")
+
+# Initialize OpenAI bot
+logger.info("Initializing OpenAI bot and RAG engine...")
+try:
+    bot = OpenAIBot()
+    logger.info("✨ Application initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize application: {str(e)}", exc_info=True)
+    raise
+
+@app.post("/api/request", response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    try:
+        logger.info(f"Processing prediction request with id: {request.id}")
+        
+        # Generate response using OpenAI bot
+        response = bot.generate_response(
+            query=request.query,
+            request_id=request.id
+        )
+        
+        logger.info(f"Successfully processed request {request.id}")
+        return response
+        
+    except ValueError as e:
+        error_msg = str(e)
+        logger.error(f"Validation error for request {request.id}: {error_msg}")
+        raise HTTPException(status_code=400, detail=error_msg)
+    except Exception as e:
+        logger.error(f"Internal error processing request {request.id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 @app.on_event("startup")
 async def startup_event():
-    global logger
-    logger = await setup_logger()
+    logger.info("🌟 API is ready to handle requests")
 
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start_time = time.time()
-
-    body = await request.body()
-    await logger.info(
-        f"Incoming request: {request.method} {request.url}\n"
-        f"Request body: {body.decode()}"
-    )
-
-    response = await call_next(request)
-    process_time = time.time() - start_time
-
-    response_body = b""
-    async for chunk in response.body_iterator:
-        response_body += chunk
-
-    await logger.info(
-        f"Request completed: {request.method} {request.url}\n"
-        f"Status: {response.status_code}\n"
-        f"Response body: {response_body.decode()}\n"
-        f"Duration: {process_time:.3f}s"
-    )
-
-    return Response(
-        content=response_body,
-        status_code=response.status_code,
-        headers=dict(response.headers),
-        media_type=response.media_type,
-    )
-
-
-@app.post("/api/request", response_model=PredictionResponse)
-async def predict(body: PredictionRequest):
+if __name__ == "__main__":
     try:
-        await logger.info(f"Processing prediction request with id: {body.id}")
-        # Здесь будет вызов вашей модели
-        answer = 1  # Замените на реальный вызов модели
-        sources: List[HttpUrl] = [
-            HttpUrl("https://itmo.ru/ru/"),
-            HttpUrl("https://abit.itmo.ru/"),
-        ]
-
-        response = PredictionResponse(
-            id=body.id,
-            answer=answer,
-            reasoning="Из информации на сайте",
-            sources=sources,
+        logger.info("Starting uvicorn server...")
+        uvicorn.run(
+            app, 
+            host="0.0.0.0", 
+            port=8000,
+            log_config=None  # Disable uvicorn's default logging
         )
-        await logger.info(f"Successfully processed request {body.id}")
-        return response
-    except ValueError as e:
-        error_msg = str(e)
-        await logger.error(f"Validation error for request {body.id}: {error_msg}")
-        raise HTTPException(status_code=400, detail=error_msg)
     except Exception as e:
-        await logger.error(f"Internal error processing request {body.id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
+        raise

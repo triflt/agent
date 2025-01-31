@@ -1,0 +1,7 @@
+ORG-README.md
+.env
+data/chroma_db/
+data/processed/
+data/raw_texts/
+__pycache__/
+*.pyc
