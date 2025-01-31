@@ -9,17 +9,19 @@ class CustomEmbeddings:
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"Initializing embeddings model: {model_name}")
         
-        # Initialize the model
+        # Initialize the model with progress bar enabled
         self.model = HuggingFaceEmbeddings(
             model_name=model_name,
             model_kwargs={'device': 'cpu'},
-            encode_kwargs={'normalize_embeddings': True}
+            encode_kwargs={'normalize_embeddings': True},
+            show_progress=True  # Enable progress bar
         )
         self.logger.info("✅ Embeddings model loaded successfully")
     
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Embed a list of documents"""
         try:
+            self.logger.info(f"Generating embeddings for {len(texts)} texts...")
             embeddings = self.model.embed_documents(texts)
             self.logger.debug(f"Generated {len(embeddings)} embeddings")
             return embeddings
