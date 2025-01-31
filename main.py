@@ -1,13 +1,10 @@
-import time
 from typing import List
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
-from pydantic import HttpUrl
+from fastapi import FastAPI, HTTPException
 import logging
 
 from src.schemas.request import PredictionRequest, PredictionResponse
 from src.models.openai_bot import OpenAIBot
-from utils.logger import setup_logger
 
 def configure_logging():
     """Configure logging for the application"""
@@ -15,25 +12,21 @@ def configure_logging():
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.StreamHandler(),  # Console handler
-            logging.FileHandler('logs/app.log')  # File handler
+            logging.StreamHandler(),
+            logging.FileHandler('logs/app.log')
         ]
     )
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 
-# Initialize logging
 configure_logging()
 logger = logging.getLogger(__name__)
 
-# Print startup banner
 logger.info("=" * 50)
 logger.info("🚀 Starting ITMO Assistant Application")
 logger.info("=" * 50)
 
-# Initialize FastAPI
 app = FastAPI(title="ITMO Assistant API")
 
-# Initialize OpenAI bot
 logger.info("Initializing OpenAI bot and RAG engine...")
 try:
     bot = OpenAIBot()

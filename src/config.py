@@ -12,6 +12,7 @@ class RAGConfig(BaseModel):
     min_chunk_length: int = 300
     embeddings_model: str = "intfloat/multilingual-e5-small"
     max_links: int = 3
+    csv_path: str = "data/processed/texts_LARGE.csv"
     use_query_expansion: bool = False
 
 

@@ -1,13 +1,10 @@
-from typing import List, Dict
+from typing import List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.document_loaders import TextLoader
 from langchain.schema import Document
 import os
-from pathlib import Path
 import logging
 import pandas as pd
-from pydantic import HttpUrl
 from .embeddings import CustomEmbeddings
 from ..tools.query_expander import QueryExpander
 from openai import OpenAI
@@ -32,7 +29,7 @@ class RAGEngine:
         self.query_expander = QueryExpander(OpenAI())
 
     def load_and_process_documents(
-        self, csv_path: str = "data/processed/texts_final.csv"
+        self, csv_path: str = config.rag.csv_path
     ) -> None:
         """Load documents from CSV, split into chunks, and create vector store"""
 

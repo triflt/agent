@@ -2,7 +2,7 @@ from typing import List, Optional
 from openai import OpenAI
 import logging
 from pydantic import BaseModel
-from prompt_v1 import QUERY_EXPANSION_PROMPT
+from .prompt_v1 import QUERY_EXPANSION_PROMPT
 from ..config import config
 
 logger = logging.getLogger(__name__)
