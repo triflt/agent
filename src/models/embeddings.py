@@ -4,20 +4,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class CustomEmbeddings:
     def __init__(self, model_name: str = "intfloat/multilingual-e5-small"):
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"Initializing embeddings model: {model_name}")
-        
-        # Initialize the model with progress bar enabled
+
         self.model = HuggingFaceEmbeddings(
             model_name=model_name,
-            model_kwargs={'device': 'cpu'},
-            encode_kwargs={'normalize_embeddings': True},
-            show_progress=True  # Enable progress bar
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True},
+            show_progress=True,
         )
         self.logger.info("✅ Embeddings model loaded successfully")
-    
+
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Embed a list of documents"""
         try:
@@ -28,7 +28,7 @@ class CustomEmbeddings:
         except Exception as e:
             self.logger.error(f"Error generating document embeddings: {str(e)}")
             raise
-    
+
     def embed_query(self, text: str) -> List[float]:
         """Embed a single query"""
         try:
@@ -36,4 +36,4 @@ class CustomEmbeddings:
             return embedding
         except Exception as e:
             self.logger.error(f"Error generating query embedding: {str(e)}")
-            raise 
+            raise

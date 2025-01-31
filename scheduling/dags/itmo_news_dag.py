@@ -6,7 +6,6 @@ from airflow.utils.dates import days_ago
 import sys
 import os
 
-# Add the project root to Python path
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
@@ -26,7 +25,7 @@ dag = DAG(
     "itmo_news_pipeline",
     default_args=default_args,
     description="Pipeline to parse and index ITMO news daily",
-    schedule_interval="0 1 * * *",  # Run at 1 AM every day
+    schedule_interval="0 1 * * *",
     start_date=days_ago(1),
     catchup=False,
     tags=["itmo", "news", "embedding"],

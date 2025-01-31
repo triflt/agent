@@ -1,4 +1,3 @@
-from typing import List, Dict, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -15,7 +14,6 @@ class OpenAIBot:
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initializing OpenAI bot...")
 
-        # Load environment variables
         load_dotenv()
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
@@ -25,7 +23,6 @@ class OpenAIBot:
         self.client = OpenAI(api_key=api_key)
         self.logger.info("OpenAI client initialized successfully")
 
-        # Set model and prompt
         self.model = config.llm.main_model
         self.system_prompt = SYSTEM_PROMPT
         self.logger.info(f"Using model: {self.model}")
@@ -78,11 +75,11 @@ class OpenAIBot:
                 {"role": "system", "content": self.system_prompt},
                 {
                     "role": "system",
-                    "content": "You must provide a structured response following the AssistantResponse schema.",
+                    "content": "Ты должен отдавать ответ следуя схеме AssistantResponse.",
                 },
                 {
                     "role": "system",
-                    "content": f"Context:\n\n{json.dumps([c.model_dump() for c in context_info], indent=2)}",
+                    "content": f"Найденные документы:\n\n{json.dumps([c.model_dump() for c in context_info], indent=2)}",
                 },
                 {"role": "user", "content": query},
             ]
@@ -96,7 +93,6 @@ class OpenAIBot:
                 max_tokens=config.llm.max_tokens,
             )
 
-            # Get the parsed response
             parsed_response = response.choices[0].message.parsed
             if not parsed_response:
                 raise ValueError("Failed to parse structured response from model")
@@ -105,12 +101,11 @@ class OpenAIBot:
                 f"Received structured response: {parsed_response.model_dump_json(indent=2)}"
             )
 
-            # Convert to final API response format, using original URLs from context
             return PredictionResponse(
                 id=request_id,
                 answer=parsed_response.answer,
                 reasoning=parsed_response.reasoning,
-                sources=urls,  # Use original URLs instead of sources_used
+                sources=urls,
             )
 
         except Exception as e:

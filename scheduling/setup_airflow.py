@@ -3,11 +3,9 @@ from pathlib import Path
 
 
 def setup_airflow():
-    # Set Airflow home directory
     airflow_home = Path(__file__).parent / "airflow_home"
     os.environ["AIRFLOW_HOME"] = str(airflow_home)
 
-    # Create necessary directories
     dags_dir = airflow_home / "dags"
     logs_dir = airflow_home / "logs"
     plugins_dir = airflow_home / "plugins"
@@ -15,7 +13,6 @@ def setup_airflow():
     for dir_path in [airflow_home, dags_dir, logs_dir, plugins_dir]:
         dir_path.mkdir(parents=True, exist_ok=True)
 
-    # Create symbolic link to our DAGs
     if not (dags_dir / "itmo_news_dag.py").exists():
         os.symlink(
             Path(__file__).parent / "dags" / "itmo_news_dag.py",
