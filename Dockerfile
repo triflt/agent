@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p data/raw_texts data/processed data/chroma_db
+RUN mkdir -p data/raw_texts data/processed data/chroma_db logs
 
 # Set environment variables
 ENV PYTHONPATH=/app

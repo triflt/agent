@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+      - ./logs:/app/logs
       - ./.env:/app/.env
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
