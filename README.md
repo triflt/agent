@@ -25,8 +25,8 @@ _Disclaimer: проект сделан менее, чем за день_
 ## 🛠 Технический стек
 
 - Python 3.8+
-- OpenAI API
-- Langchain/chroma/huggingface
+- OpenAI API (LLM)
+- Langchain/chroma/huggingface (infloat/multilingual-e5-small; RecursiveChunker)
 - RAG (Retrieval-Augmented Generation) архитектура
 - Apache Airflow для планирования задач
 
