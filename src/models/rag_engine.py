@@ -32,7 +32,7 @@ class RAGEngine:
         self.query_expander = QueryExpander(OpenAI())
 
     def load_and_process_documents(
-        self, csv_path: str = "data/processed/texts.csv"
+        self, csv_path: str = "data/processed/texts_final.csv"
     ) -> None:
         """Load documents from CSV, split into chunks, and create vector store"""
 
